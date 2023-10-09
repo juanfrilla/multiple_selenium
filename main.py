@@ -24,13 +24,16 @@ urls = [
     "https://www.windguru.cz/501281",  # la santa
 ]
 
-
-def get_soup(url, tag_to_wait="table.tabulka", timeout=60 * 1000):
+def get_driver():
     options = webdriver.ChromeOptions()
     driver = webdriver.Remote(
         command_executor="http://localhost:4444",
         options=options,
     )
+    return driver
+
+def get_soup(url, tag_to_wait="table.tabulka", timeout=60 * 1000):
+    driver = get_driver()
     driver.get(url)
     if tag_to_wait:
         WebDriverWait(driver, timeout).until(
