@@ -1,10 +1,10 @@
+import os
+import concurrent.futures
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from bs4 import BeautifulSoup
-import concurrent.futures
 
 
 urls = [
@@ -25,10 +25,11 @@ urls = [
 ]
 
 
-def get_soup(url, tag_to_wait="table.tabulka", timeout=60*1000):
+def get_soup(url, tag_to_wait="table.tabulka", timeout=60 * 1000):
     options = webdriver.ChromeOptions()
     driver = webdriver.Remote(
-        command_executor="http://localhost:4444", options=options,
+        command_executor="http://localhost:4444",
+        options=options,
     )
     driver.get(url)
     if tag_to_wait:
@@ -46,7 +47,7 @@ def parse_spot_name(soup):
 
 
 def main():
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
         soups = list(executor.map(get_soup, urls))
     for soup in soups:
         print(parse_spot_name(soup))
