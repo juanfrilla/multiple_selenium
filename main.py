@@ -1,10 +1,10 @@
 import os
-import concurrent.futures
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from multiprocessing import Pool
 
 
 urls = [
@@ -24,6 +24,7 @@ urls = [
     "https://www.windguru.cz/501281",  # la santa
 ]
 
+
 def get_driver():
     options = webdriver.ChromeOptions()
     driver = webdriver.Remote(
@@ -31,6 +32,7 @@ def get_driver():
         options=options,
     )
     return driver
+
 
 def get_soup(url, tag_to_wait="table.tabulka", timeout=60 * 1000):
     driver = get_driver()
@@ -50,8 +52,8 @@ def parse_spot_name(soup):
 
 
 def main():
-    with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-        soups = list(executor.map(get_soup, urls))
+    pool = Pool(processes=os.cpu_count())
+    soups = pool.map(get_soup, urls)
     for soup in soups:
         print(parse_spot_name(soup))
 
